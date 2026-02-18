@@ -1,5 +1,85 @@
-### Criar Ativo
-POST http://localhost:8080/investments
+@baseUrl = http://localhost:8080
+@investmentId = 1
+@userId = 1
+@portfolioId = 1
+
+@adminEmail = admin@admin.com
+@adminPass = admin123
+
+@userEmail = john.doe@example.com
+@userPass = 123456
+
+### ============================================================================
+### -------------------- USERS  --------------------
+### ============================================================================
+
+### 1. Criar Usuário
+POST {{baseUrl}}/users
+Content-Type: application/json
+# Authorization: Basic {{adminEmail}} {{adminPass}} 
+
+{
+  "name": "John Doe",
+  "email": "john.doe@example.com",
+  "password": "123456",
+  "role": "USER"
+}
+
+### 2. Listar Usuários
+GET {{baseUrl}}/users/all
+Authorization: Basic {{adminEmail}} {{adminPass}}
+
+### 3. Listar Usuário por ID
+GET {{baseUrl}}/users/{{userId}}
+Authorization: Basic {{userEmail}} {{userPass}}
+
+### 4. Atualizar Usuário
+PUT {{baseUrl}}/users/{{userId}}
+Authorization: Basic {{userEmail}} {{userPass}}
+Content-Type: application/json
+
+{
+  "name": "João da Silva",
+  "email": "john.doe@example.com",
+  "password": "novasenha123",
+  "role": "USER"
+}
+
+### 5. Deletar Usuário
+DELETE {{baseUrl}}/users/{{userId}}
+Authorization: Basic {{adminEmail}} {{adminPass}}
+
+
+### 6. Criar Portfolio
+POST {{baseUrl}}/users/{{userId}}/portfolio
+Authorization: Basic {{userEmail}} {{userPass}}
+Content-Type: application/json
+
+{
+  "userId": "{{userId}}",
+  "totalInvested": 600.00,
+  "totalByType": {
+    "ACAO": 600.00
+  },
+  "assetCount": 1,
+  "investments": [
+    {
+      "type": "ACAO",
+      "symbol": "VALE3",
+      "quantity": 100,
+      "purchasePrice": 60.00,
+      "purchaseDate": "2025-08-15"
+    }
+  ] 
+}
+
+### ============================================================================
+### -------------------- INVESTMENTS --------------------
+### ============================================================================
+
+### 1. Criar Ativo
+POST {{baseUrl}}/investments
+Authorization: Basic {{userEmail}} {{userPass}}
 Content-Type: application/json
 
 {
@@ -10,14 +90,21 @@ Content-Type: application/json
   "purchaseDate": "2025-08-15"
 }
 
-### Resumo da Carteira
-GET http://localhost:8080/investments/summary
+### 2. Listar Ativos
+GET {{baseUrl}}/investments
+Authorization: Basic {{userEmail}} {{userPass}}
 
-### Listar Ativos
-GET http://localhost:8080/investments
+### 3. Obter Ativo por ID
+GET {{baseUrl}}/investments/{{investmentId}}
+Authorization: Basic {{userEmail}} {{userPass}}
 
-### Atualizar Ativo
-PUT http://localhost:8080/investments/1
+### 4. Obter Resumo da Carteira
+GET {{baseUrl}}/investments/summary
+Authorization: Basic {{userEmail}} {{userPass}}
+
+### 5. Atualizar Ativo por ID
+PUT {{baseUrl}}/investments/{{investmentId}}
+Authorization: Basic {{userEmail}} {{userPass}}
 Content-Type: application/json
 
 {
@@ -28,6 +115,69 @@ Content-Type: application/json
   "purchaseDate": "2025-08-15"
 }
 
-### Deletar Ativo
-DELETE http://localhost:8080/investments/1
+### 6. Deletar Ativo por ID
+DELETE {{baseUrl}}/investments/{{investmentId}}
+Authorization: Basic {{adminEmail}} {{adminPass}}
 
+
+### ============================================================================
+### -------------------- PORTFOLIOS --------------------
+### ============================================================================
+
+### 1. Criar Portfolio
+POST {{baseUrl}}/portfolios
+Authorization: Basic {{userEmail}} {{userPass}}
+Content-Type: application/json
+
+{
+  "userId": "{{userId}}",
+  "totalInvested": 600.00,
+  "totalByType": {
+    "ACAO": 600.00
+  },
+  "assetCount": 1,
+  "investments": [
+    {
+      "type": "ACAO",
+      "symbol": "VALE3",
+      "quantity": 100,
+      "purchasePrice": 60.00,
+      "purchaseDate": "2025-08-15"
+    }
+  ]
+}
+
+### 2. Listar Portfolios
+GET {{baseUrl}}/portfolios/all
+Authorization: Basic {{adminEmail}} {{adminPass}}
+
+### 3. Obter Portfolio por ID
+GET {{baseUrl}}/portfolios/{{portfolioId}}
+Authorization: Basic {{userEmail}} {{userPass}}
+
+### 4. Atualizar Portfolio por ID
+PUT {{baseUrl}}/portfolios/{{portfolioId}}
+Authorization: Basic {{userEmail}} {{userPass}}
+Content-Type: application/json
+
+{
+  "userId": {{userId}},
+  "totalInvested": 600.00,
+  "totalByType": {
+    "ACAO": 600.00
+  },
+  "assetCount": 1,
+  "investments": [
+    {
+      "type": "ACAO",
+      "symbol": "VALE3",
+      "quantity": 100,
+      "purchasePrice": 60.00,
+      "purchaseDate": "2025-08-15"
+    }
+  ]
+}
+
+### 5. Deletar Portfolio por ID
+DELETE {{baseUrl}}/portfolios/{{portfolioId}}
+Authorization: Basic {{adminEmail}} {{adminPass}}
