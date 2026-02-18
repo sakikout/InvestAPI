@@ -1,6 +1,5 @@
 package br.edu.ufop.invest.service;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -13,50 +12,94 @@ import br.edu.ufop.invest.repository.InvestmentRepository;
 import br.edu.ufop.invest.dto.InvestmentDTO;
 import br.edu.ufop.invest.dto.PortfolioSummaryDTO;
 import br.edu.ufop.invest.entity.InvestmentEntity;
+import java.util.UUID;
+import br.edu.ufop.invest.converter.InvestmentConverter;
+import br.edu.ufop.invest.domain.Investment;
 
 @Service
 public class InvestmentService {
-
     @Autowired
     private InvestmentRepository repository;
+    @Autowired
+    private InvestmentConverter converter;
 
-    public InvestmentEntity create(InvestmentDTO dto) {
-        InvestmentEntity investment = new InvestmentEntity();
-        BeanUtils.copyProperties(dto, investment); 
-        return repository.save(investment);
+
+    // CREATE: Create a new investment
+    public Investment createInvestment(InvestmentDTO dto) {
+
+        Investment investment = new Investment(
+            dto.type(),
+            dto.symbol(),
+            dto.quantity(),
+            dto.purchasePrice(),
+            dto.purchaseDate()
+        );  
+
+        InvestmentEntity entity = converter.toEntity(investment);
+        InvestmentEntity saved = repository.save(entity);
+        return converter.toDomain(saved);
     }
 
-    public List<InvestmentEntity> findAll(AssetType type) {
-        if (type != null) {
-            return repository.findByType(type);
-        }
-        return repository.findAll();
-    }
-    
-    public InvestmentEntity update(Long id, InvestmentDTO dto) {
+    // UPDATE: Update an existing investment
+    public Investment updateInvestment(UUID id, InvestmentDTO dto) {
         Optional<InvestmentEntity> existing = repository.findById(id);
         if (existing.isPresent()) {
-            InvestmentEntity investment = existing.get();
-            BeanUtils.copyProperties(dto, investment);
-            return repository.save(investment);
+            Investment investment = converter.toDomain(existing.get());
+            investment.setType(dto.type());
+            investment.setSymbol(dto.symbol());
+            investment.setQuantity(dto.quantity());
+            investment.setPurchasePrice(dto.purchasePrice());
+            investment.setPurchaseDate(dto.purchaseDate());
+            InvestmentEntity entity = converter.toEntity(investment);
+            InvestmentEntity saved = repository.save(entity);
+            return converter.toDomain(saved);
         }
         return null;
     }
 
-    public void delete(Long id) {
+    // DELETE: Delete an existing investment
+    public void deleteInvestment(UUID id) {
         repository.deleteById(id);
     }
 
-    public InvestmentEntity findById(Long id) {
+    // READ ALL: Get all investments
+    public List<Investment> findAll(AssetType type) {
+        if (type != null) {
+            List<InvestmentEntity> entities = repository.findByType(type);
+            return entities.stream()
+                .map(converter::toDomain)
+                .collect(Collectors.toList());
+        } else {
+            List<InvestmentEntity> entities = repository.findAll();
+            return entities.stream()
+                .map(converter::toDomain)
+                .collect(Collectors.toList());
+        }
+    }
+
+    // READ BY ID: Get an investment by ID
+    public Investment findById(UUID id) {
         Optional<InvestmentEntity> existing = repository.findById(id);
         if (existing.isPresent()) {
-            return existing.get();
+            return converter.toDomain(existing.get());
         }
         return null;
     }
 
+    // READ BY TYPE: Get investments by type
+    public List<Investment> findByType(AssetType type) {
+        List<InvestmentEntity> entities = repository.findByType(type);
+        return entities.stream()
+            .map(converter::toDomain)
+            .collect(Collectors.toList());
+    }
+
+    // READ SUMMARY: Get the summary of the portfolio
     public PortfolioSummaryDTO getSummary() {
-        List<InvestmentEntity> all = repository.findAll();
+        List<InvestmentEntity> entities = repository.findAll();
+        List<Investment> all = entities.stream()
+            .map(converter::toDomain)
+            .collect(Collectors.toList());
 
         BigDecimal totalInvested = all.stream()
             .map(i -> i.getPurchasePrice().multiply(BigDecimal.valueOf(i.getQuantity())))
@@ -64,7 +107,7 @@ public class InvestmentService {
 
         Map<AssetType, BigDecimal> totalByType = all.stream()
             .collect(Collectors.groupingBy(
-                InvestmentEntity::getType,
+                Investment::getType,
                 Collectors.reducing(
                     BigDecimal.ZERO,
                     i -> i.getPurchasePrice().multiply(BigDecimal.valueOf(i.getQuantity())),
