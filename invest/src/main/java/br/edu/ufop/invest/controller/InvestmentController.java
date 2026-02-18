@@ -11,11 +11,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import br.edu.ufop.invest.service.InvestmentService;
-import br.edu.ufop.invest.entity.InvestmentEntity;
+import br.edu.ufop.invest.domain.Investment;
 import br.edu.ufop.invest.dto.InvestmentDTO;
 import br.edu.ufop.invest.dto.PortfolioSummaryDTO;
 import br.edu.ufop.invest.enums.AssetType;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -28,29 +29,50 @@ public class InvestmentController {
     @Autowired
     private InvestmentService service;
 
+    @GetMapping("/status")
+    public ResponseEntity<String> getStatus() {
+        return ResponseEntity.ok("Investment service is running");
+    }
+
+    // CREATE
     @PostMapping
-    public ResponseEntity<InvestmentEntity> create(@RequestBody InvestmentDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
+    public ResponseEntity<Investment> create(@RequestBody InvestmentDTO dto) {
+        Investment investment = service.createInvestment(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(investment);
     }
 
+    // READ ALL
     @GetMapping
-    public ResponseEntity<List<InvestmentEntity>> list(@RequestParam(required = false) AssetType type) {
-        return ResponseEntity.ok(service.findAll(type));
+    public ResponseEntity<List<Investment>> list(@RequestParam(required = false) AssetType type) {
+        List<Investment> investments = service.findAll(type);
+        return ResponseEntity.ok(investments);
     }
 
+    // READ BY ID
+    @GetMapping("/{id}")
+    public ResponseEntity<Investment> getById(@PathVariable UUID id) {
+        Investment investment = service.findById(id);
+        return ResponseEntity.ok(investment);
+    }
+
+    // READ SUMMARY
     @GetMapping("/summary")
     public ResponseEntity<PortfolioSummaryDTO> getSummary() {
-        return ResponseEntity.ok(service.getSummary());
+        PortfolioSummaryDTO summary = service.getSummary();
+        return ResponseEntity.ok(summary);
     }
 
+    // UPDATE
     @PutMapping("/{id}")
-    public ResponseEntity<InvestmentEntity> update(@PathVariable Long id, @RequestBody InvestmentDTO dto) {
-        return ResponseEntity.ok(service.update(id, dto));
+    public ResponseEntity<Investment> update(@PathVariable UUID id, @RequestBody InvestmentDTO dto) {
+        Investment investment = service.updateInvestment(id, dto);
+        return ResponseEntity.ok(investment);
     }
 
+    // DELETE
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        service.delete(id);
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        service.deleteInvestment(id);
         return ResponseEntity.noContent().build();
     }
 }
