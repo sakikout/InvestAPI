@@ -1,0 +1,33 @@
+### Criar Ativo
+POST http://localhost:8080/investments
+Content-Type: application/json
+
+{
+  "type": "ACAO",
+  "symbol": "VALE3",
+  "quantity": 50,
+  "purchasePrice": 65.50,
+  "purchaseDate": "2025-08-15"
+}
+
+### Resumo da Carteira
+GET http://localhost:8080/investments/summary
+
+### Listar Ativos
+GET http://localhost:8080/investments
+
+### Atualizar Ativo
+PUT http://localhost:8080/investments/1
+Content-Type: application/json
+
+{
+  "type": "ACAO",
+  "symbol": "VALE3",
+  "quantity": 100,
+  "purchasePrice": 60.00,
+  "purchaseDate": "2025-08-15"
+}
+
+### Deletar Ativo
+DELETE http://localhost:8080/investments/1
+

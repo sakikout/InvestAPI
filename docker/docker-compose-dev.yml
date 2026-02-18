@@ -1,0 +1,22 @@
+services:
+  db:
+    image: postgres:17.6
+    ports:
+      - "9876:5432"
+    environment:
+      - POSTGRES_PASSWORD=invest-password 
+      - POSTGRES_USER=pg-invest     
+    networks:
+      - backend
+    volumes:
+      - ./01-create-database-invest.sql:/docker-entrypoint-initdb.d/01-create-database-invest.sql
+      - ../pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U invest-master -d invest"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+networks:
+  backend:
+    driver: bridge
