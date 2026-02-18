@@ -1,4 +1,4 @@
-package br.edu.ufop.dto;
+package br.edu.ufop.invest.dto;
 
 import java.math.BigDecimal;
 
