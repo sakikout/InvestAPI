@@ -29,15 +29,12 @@ public class PortfolioService {
     private final InvestmentConverter investmentConverter;
 
     // CREATE
-    @Transactional // Essencial!
+    @Transactional
     public Portfolio createPortfolio(PortfolioCreateDTO dto) {
         // Find user
         UserEntity user = userRepository.findById(dto.userId())
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
 
-            // 2. Prepara os Investimentos (FILHOS)
-            // O PULO DO GATO: Certifique-se que o converter NÃO está setando o ID.
-            // Os IDs dos investimentos DEVEM ser NULL aqui.
         List<Investment> investments = dto.investments().stream().map(investmentConverter::toDomainFromDTO).collect(Collectors.toList());
         List<InvestmentEntity> investmentsEntity = investments.stream().map(investmentConverter::toEntity).collect(Collectors.toList());
 
@@ -112,7 +109,6 @@ public class PortfolioService {
 
     // READ ALL
     public List<Portfolio> getAllPortfolios() {
-
         List<PortfolioEntity> entities = repository.findAll();
 
         if (entities.isEmpty()) {
