@@ -84,7 +84,7 @@ Content-Type: application/json
 
 {
   "type": "ACAO",
-  "symbol": "VALE3",
+  "symbol": "PETR4",
   "quantity": 50,
   "purchasePrice": 65.50,
   "purchaseDate": "2025-08-15"
@@ -109,7 +109,7 @@ Content-Type: application/json
 
 {
   "type": "ACAO",
-  "symbol": "VALE3",
+  "symbol": "VALE5",
   "quantity": 100,
   "purchasePrice": 60.00,
   "purchaseDate": "2025-08-15"
@@ -139,7 +139,7 @@ Content-Type: application/json
   "investments": [
     {
       "type": "ACAO",
-      "symbol": "VALE3",
+      "symbol": "PEPSIC0",
       "quantity": 100,
       "purchasePrice": 60.00,
       "purchaseDate": "2025-08-15"
@@ -161,7 +161,7 @@ Authorization: Basic {{userEmail}} {{userPass}}
 Content-Type: application/json
 
 {
-  "userId": {{userId}},
+  "userId": "{{userId}}",
   "totalInvested": 600.00,
   "totalByType": {
     "ACAO": 600.00
