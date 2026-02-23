@@ -4,6 +4,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.math.BigDecimal;
+import java.util.UUID;
 import br.edu.ufop.invest.enums.AssetType;
 
 @Getter
@@ -12,6 +13,7 @@ import br.edu.ufop.invest.enums.AssetType;
 @NoArgsConstructor
 @Builder
 public class Investment {
+    private UUID id;
     private AssetType type;
     private String symbol;
     private Integer quantity;

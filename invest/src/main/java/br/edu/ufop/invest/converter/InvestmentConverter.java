@@ -15,6 +15,7 @@ public class InvestmentConverter {
         if (entity == null) return null;
 
         return new Investment(
+            entity.getId(),
             entity.getType(),
             entity.getSymbol(),
             entity.getQuantity(),
@@ -42,6 +43,7 @@ public class InvestmentConverter {
         if (domain == null) return null;
 
         return new InvestmentDTO(
+            domain.getId(),
             domain.getType(),
             domain.getSymbol(),
             domain.getQuantity(),
@@ -55,6 +57,7 @@ public class InvestmentConverter {
         if (dto == null) return null;
 
         return new Investment(
+            dto.id(),
             dto.type(),
             dto.symbol(),
             dto.quantity(),
