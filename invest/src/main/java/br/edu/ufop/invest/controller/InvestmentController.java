@@ -71,8 +71,8 @@ public class InvestmentController {
 
     // DELETE
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+    public ResponseEntity<String> delete(@PathVariable UUID id) {
         service.deleteInvestment(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Investimento deletado com sucesso");
     }
 }
