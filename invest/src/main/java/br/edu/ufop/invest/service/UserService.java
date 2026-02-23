@@ -77,7 +77,15 @@ public class UserService {
              .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com id: " + id));
         
         entity.setName(userDetails.name());
-        entity.setEmail(userDetails.email());
+
+        if (!entity.getEmail().equals(userDetails.email())) {
+            if (userRepository.findByEmail(userDetails.email()).isPresent()) {
+                throw new UserAlreadyExistsException("Já existe um usuário com o email: " + userDetails.email());
+            } else {
+                entity.setEmail(userDetails.email());
+            }
+        }
+        
         entity.setPassword(userDetails.password());
         
         UserEntity updatedEntity = userRepository.save(entity);
