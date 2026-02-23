@@ -79,14 +79,8 @@ public class UserService {
         entity.setName(userDetails.name());
         entity.setEmail(userDetails.email());
         entity.setPassword(userDetails.password());
-        entity.setRole(entity.getRole());
-
+        
         UserEntity updatedEntity = userRepository.save(entity);
-
-        PortfolioEntity portfolio = portfolioRepository.findByUserId(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Portfolio não encontrado com user id: " + id));
-        portfolio.setUser(updatedEntity);
-        portfolioRepository.save(portfolio);
 
         return userConverter.toDomain(updatedEntity);
     }
@@ -96,10 +90,10 @@ public class UserService {
         UserEntity entity = userRepository.findById(id)
              .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com id: " + id));
         
-        PortfolioEntity portfolio = portfolioRepository.findByUserId(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Portfolio não encontrado com user id: " + id));
+        portfolioRepository.findByUserId(id).ifPresent(portfolio -> {
+            portfolioRepository.delete(portfolio);
+        });
         
-        portfolioRepository.delete(portfolio);
         userRepository.delete(entity);
     }
 
