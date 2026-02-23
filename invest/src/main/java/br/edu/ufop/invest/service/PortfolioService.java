@@ -76,34 +76,44 @@ public class PortfolioService {
     }
 
     // UPDATE
+    @Transactional
     public Portfolio updatePortfolio(UUID id, PortfolioCreateDTO dto) {
         PortfolioEntity portfolioEntity = repository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Nenhum portfolio encontrado com o id: " + id));
 
-
-            if (!portfolioEntity.getUser().getId().equals(dto.userId())) {
-                UserEntity newUser = userRepository.findById(dto.userId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado: " + dto.userId()));
-                portfolioEntity.setUser(newUser);
-            }
+        if (!portfolioEntity.getUser().getId().equals(dto.userId())) {
+            UserEntity newUser = userRepository.findById(dto.userId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado: " + dto.userId()));
+            portfolioEntity.setUser(newUser);
+        }
 
         List<Investment> investments = dto.investments().stream().map(investmentConverter::toDomainFromDTO).collect(Collectors.toList());
         List<InvestmentEntity> investmentsEntity = investments.stream().map(investmentConverter::toEntity).collect(Collectors.toList());
         
-        
         portfolioEntity.setTotalInvested(dto.totalInvested());
         portfolioEntity.setTotalByType(dto.totalByType());
         portfolioEntity.setAssetCount(dto.assetCount());
-        portfolioEntity.setInvestments(investmentsEntity);
+        
+        portfolioEntity.getInvestments().clear();
+        portfolioEntity.getInvestments().addAll(investmentsEntity);
 
         PortfolioEntity saved = repository.save(portfolioEntity);
         return portfolioConverter.toDomain(saved);
     }
 
     // DELETE
+    @Transactional
     public void deletePortfolio(UUID id) {
         PortfolioEntity portfolioEntity = repository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Nenhum portfolio encontrado com o id: " + id));
+
+        UserEntity donoDoPortfolio = portfolioEntity.getUser();
+        
+        if (donoDoPortfolio != null) {
+            donoDoPortfolio.setPortfolio(null);
+            userRepository.save(donoDoPortfolio); 
+        }
+
         repository.delete(portfolioEntity);
     }
 
