@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import br.edu.ufop.invest.enums.AssetType;
 import br.edu.ufop.invest.repository.InvestmentRepository;
+import br.edu.ufop.invest.exception.ResourceNotFoundException;
 import br.edu.ufop.invest.dto.InvestmentDTO;
 import br.edu.ufop.invest.dto.PortfolioSummaryDTO;
 import br.edu.ufop.invest.entity.InvestmentEntity;
@@ -28,6 +29,7 @@ public class InvestmentService {
     public Investment createInvestment(InvestmentDTO dto) {
 
         Investment investment = new Investment(
+            dto.id(),
             dto.type(),
             dto.symbol(),
             dto.quantity(),
@@ -42,24 +44,26 @@ public class InvestmentService {
 
     // UPDATE: Update an existing investment
     public Investment updateInvestment(UUID id, InvestmentDTO dto) {
-        Optional<InvestmentEntity> existing = repository.findById(id);
-        if (existing.isPresent()) {
-            Investment investment = converter.toDomain(existing.get());
-            investment.setType(dto.type());
-            investment.setSymbol(dto.symbol());
-            investment.setQuantity(dto.quantity());
-            investment.setPurchasePrice(dto.purchasePrice());
-            investment.setPurchaseDate(dto.purchaseDate());
-            InvestmentEntity entity = converter.toEntity(investment);
-            InvestmentEntity saved = repository.save(entity);
-            return converter.toDomain(saved);
-        }
-        return null;
+        InvestmentEntity existing = repository.findById(id)
+             .orElseThrow(() -> new ResourceNotFoundException("Investimento não encontrado com id: " + id));
+        
+        existing.setType(dto.type());
+        existing.setSymbol(dto.symbol());
+        existing.setQuantity(dto.quantity());
+        existing.setPurchasePrice(dto.purchasePrice());
+        existing.setPurchaseDate(dto.purchaseDate());
+
+        InvestmentEntity updatedEntity = repository.save(existing);
+
+        return converter.toDomain(updatedEntity);
     }
 
     // DELETE: Delete an existing investment
     public void deleteInvestment(UUID id) {
-        repository.deleteById(id);
+        InvestmentEntity entity = repository.findById(id)
+             .orElseThrow(() -> new ResourceNotFoundException("Investimento não encontrado com id: " + id));
+        
+        repository.delete(entity);
     }
 
     // READ ALL: Get all investments
